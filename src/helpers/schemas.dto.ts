@@ -1,4 +1,4 @@
-import { Hotel } from "src/modules/hotels/entities/hotel.entity";
+import { Flight } from "src/modules/flights/entities/flight.entity";
 
 export class CustomInfoResDto {
   status: number = 200;
@@ -25,7 +25,7 @@ export class CustomListResDto {
   total_count: number = null;
   page: number = null;
   next_page: number = null;
-  results: Hotel[] = [];
+  results: Flight[] = [];
 }
 
 export class CustomResDto {

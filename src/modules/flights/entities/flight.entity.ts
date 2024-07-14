@@ -7,26 +7,25 @@ import {
     DeleteDateColumn,
 } from 'typeorm'; 
 
-@Entity('hotels')
-export class Hotel {
+@Entity('flights')
+export class Flight {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({
-        nullable: false
-    })
-    name: String;
+    // @Column({
+    //     nullable: false,
+    // })
+    // airway_id: String;
 
     @Column({
         nullable: true,
     })
-    address: String;
+    destination: String;
 
     @Column({
-        nullable: false,
-        default: true,
+        nullable: true,
     })
-    is_active: boolean;
+    departure: String;
 
     @CreateDateColumn({
     nullable: true
@@ -42,4 +41,5 @@ export class Hotel {
     nullable: true
     })
     deleted_at: Date;
+    
 }

@@ -8,12 +8,13 @@ import { dataSourceOptions } from './settings/dataSource.config';
 import { dbConfig } from './settings/db.config';
 import { RouterModule } from '@nestjs/core';
 import { appRoutes } from './helpers/router';
-import { HotelsModule } from './modules/hotels/hotels.module';
-import { ReservationsModule } from './modules/reservations/reservations.module';
+import { FlightsModule } from './modules/flights/flights.module';
+import { BookingsModule } from './modules/bookings/bookings.module';
 
 @Module({
   imports: [
-    HotelsModule,
+    FlightsModule,
+    BookingsModule,
     RouterModule.register([
       ...appRoutes
     ]),
@@ -22,8 +23,6 @@ import { ReservationsModule } from './modules/reservations/reservations.module';
       load: [baseConfig, dbConfig],
     }),
     TypeOrmModule.forRoot(dataSourceOptions),
-    HotelsModule,
-    ReservationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

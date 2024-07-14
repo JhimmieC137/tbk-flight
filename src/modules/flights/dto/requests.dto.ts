@@ -1,3 +1,4 @@
+import { PartialType } from '@nestjs/swagger';
 import { ParseIntPipe } from '@nestjs/common';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
@@ -21,9 +22,28 @@ export class paginationDto {
     limit?: number;
 }
   
-export class HotelsQueryDto extends paginationDto {
+export class FlightQueryDto extends paginationDto {
     @ApiProperty({
         required:  false,
     })
     search: string = null;
 }
+
+
+export class CreateFlightDto {
+    @ApiProperty({
+        nullable: true,
+        required: false
+    })
+    destination: String;
+
+    @ApiProperty({
+        nullable: true,
+        required: false
+    })
+    departure: String;
+}
+
+
+
+export class UpdateFlightDto extends PartialType(CreateFlightDto) {}

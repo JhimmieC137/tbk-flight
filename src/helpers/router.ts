@@ -1,12 +1,12 @@
-import { HotelsModule } from 'src/modules/hotels/hotels.module';
+import { FlightsModule } from 'src/modules/flights/flights.module';
 export const baseRoute = 'api/v1';
 
-const hotelsRoute = {
+const flightsRoute = {
   path: baseRoute,
-  module: HotelsModule,
+  module: FlightsModule,
 };
 
 
 export const appRoutes = [
-  hotelsRoute,
+  flightsRoute,
 ];

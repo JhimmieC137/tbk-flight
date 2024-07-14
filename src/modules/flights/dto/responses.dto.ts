@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Hotel } from "../entities/hotel.entity";
+import { Flight } from "../entities/flight.entity";
 
 export class QueryResponseDto {
     @ApiProperty()
@@ -10,7 +10,7 @@ export class QueryResponseDto {
 }
 
 
-export class HotelsQueryResponseDto extends QueryResponseDto {
+export class FlightQueryResponseDto extends QueryResponseDto {
     @ApiProperty()
-    hotels: Hotel[] = [];
+    flights: Flight[] = [];
 }
