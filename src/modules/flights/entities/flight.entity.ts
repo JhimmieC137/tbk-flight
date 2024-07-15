@@ -1,3 +1,4 @@
+import { Booking } from 'src/modules/bookings/entities/booking.entity';
 import {
     Entity,
     Column,
@@ -5,6 +6,7 @@ import {
     CreateDateColumn,
     UpdateDateColumn,
     DeleteDateColumn,
+    OneToMany,
 } from 'typeorm'; 
 
 @Entity('flights')
@@ -12,10 +14,8 @@ export class Flight {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    // @Column({
-    //     nullable: false,
-    // })
-    // airway_id: String;
+    @OneToMany(() => Booking, (booking) => booking.flight) // note: we will create author property in the Photo class below
+    bookings: Booking[]
 
     @Column({
         nullable: true,

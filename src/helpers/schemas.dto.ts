@@ -1,3 +1,4 @@
+import { Booking } from "src/modules/bookings/entities/booking.entity";
 import { Flight } from "src/modules/flights/entities/flight.entity";
 
 export class CustomInfoResDto {
@@ -25,7 +26,7 @@ export class CustomListResDto {
   total_count: number = null;
   page: number = null;
   next_page: number = null;
-  results: Flight[] = [];
+  results: Flight[] | Booking[]= [];
 }
 
 export class CustomResDto {

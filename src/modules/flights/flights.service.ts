@@ -5,12 +5,15 @@ import { Repository } from 'typeorm';
 import { CreateFlightDto, UpdateFlightDto } from './dto/requests.dto';
 import { FlightQueryResponseDto } from './dto/responses.dto';
 import { NOT_FOUND_404 } from 'src/helpers/exceptions/auth';
+import { TokenBlacklist } from './entities/blacklist.entity';
 
 @Injectable()
 export class FlightsService {
   constructor(
     @InjectRepository(Flight)
     private flightRepository: Repository<Flight>,
+    @InjectRepository(TokenBlacklist)
+    private blacklistRepository: Repository<TokenBlacklist>,
   ){}
 
   async create(createFlightDto: CreateFlightDto) {
@@ -35,6 +38,7 @@ export class FlightsService {
     try {
       
       const [flights, totalCount] = await this.flightRepository.findAndCount({
+        relations: ['bookings'],
         skip: offset,
         take: limit
       })
@@ -55,7 +59,8 @@ export class FlightsService {
       const flight = await this.flightRepository.findOne({
         where: {
           id,
-        }
+        },
+        relations: ['bookings'],
       })
 
       if (!flight) {
@@ -95,7 +100,8 @@ export class FlightsService {
       })
 
       const updatedflight = await this.flightRepository.findOne({
-        where: {id}
+        where: {id},
+        relations: ['bookings'],
       })
 
       return updatedflight;
@@ -107,5 +113,19 @@ export class FlightsService {
 
   remove(id: number) {
     // return `This action removes a #${id} flight`;
+  }
+
+  async blacklistToken(token: string) {
+    try {
+
+      const blackToken = new TokenBlacklist();
+      blackToken.token = token;
+  
+      await this.blacklistRepository.save(blackToken);
+      
+      return "Token blacklisted successfully"
+    } catch (error) {
+      throw error
+    }
   }
 }
