@@ -1,11 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Request } from '@nestjs/common';
 import { FlightsService } from './flights.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CustomInfoResDto, CustomListResDto, CustomResDto } from 'src/helpers/schemas.dto';
 import { CreateFlightDto, FlightQueryDto, UpdateFlightDto } from './dto/requests.dto';
 import { EventPattern, Payload } from '@nestjs/microservices';
 import { JwtAuthGuard } from 'src/helpers/jwt-auth.guard';
-
+import * as reqType from 'express';
+import { FORBIDDEN_403 } from 'src/helpers/exceptions/auth';
 
 @ApiTags('Flights')
 @Controller('flights')
@@ -17,10 +18,23 @@ export class FlightsController {
     private readonly customListResDto: CustomListResDto,
   ) {}
 
+  async checkBlacklist(req: reqType.Request) {
+    try {
+      const isBlacklisted = await this.flightsService.checkBlacklist(req.headers.authorization.split(' ')[1])
+      if (isBlacklisted) {
+        throw new FORBIDDEN_403("Invalid token")
+      }
+    } catch (error) {
+      throw error
+    }
+
+  }
+
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Body() createFlightDto: CreateFlightDto): Promise<CustomResDto> {
+  async create(@Request() req: reqType.Request, @Body() createFlightDto: CreateFlightDto): Promise<CustomResDto> {
+    await this.checkBlacklist(req);
     const response = this.customResDto;
     response.results = await this.flightsService.create(createFlightDto);
     response.message = "Flight created successfully"
@@ -31,7 +45,8 @@ export class FlightsController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get()
-  async findAll(@Query() flightQueryDto: FlightQueryDto): Promise<CustomListResDto> {
+  async findAll(@Request() req: reqType.Request, @Query() flightQueryDto: FlightQueryDto): Promise<CustomListResDto> {
+    await this.checkBlacklist(req);
     const page = Number(flightQueryDto?.page) ?? 1;
     const limit = Number(flightQueryDto?.limit) ?? 10;
     
@@ -50,7 +65,8 @@ export class FlightsController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<CustomResDto> {
+  async findOne(@Request() req: reqType.Request, @Param('id') id: string): Promise<CustomResDto> {
+    await this.checkBlacklist(req);
     const flight =  await this.flightsService.findOne(id);
     const response = this.customResDto;
     response.results = flight;
@@ -61,7 +77,8 @@ export class FlightsController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateFlightDto: UpdateFlightDto) {
+  async update(@Request() req: reqType.Request, @Param('id') id: string, @Body() updateFlightDto: UpdateFlightDto) {
+    await this.checkBlacklist(req);
     const flight =  await this.flightsService.update(id, updateFlightDto);
     const response = this.customResDto;
     response.results = flight;

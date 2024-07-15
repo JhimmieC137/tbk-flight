@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Request, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Request, Query, UseGuards, RequestMapping } from '@nestjs/common';
 import { BookingsService } from './bookings.service';
 import { BookingQueryDto, CreateBookingDto, UpdateBookingDto } from './dto/requests.dto';
 import {
@@ -10,7 +10,8 @@ import { promises } from 'dns';
 import { Booking } from './entities/booking.entity';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/helpers/jwt-auth.guard';
-
+import * as reqType from 'express';
+import { FORBIDDEN_403 } from 'src/helpers/exceptions/auth';
 @ApiTags('Booking')
 @Controller('bookings')
 export class BookingsController {
@@ -21,10 +22,23 @@ export class BookingsController {
     private readonly customListResDto: CustomListResDto,
   ) {}
 
+  async checkBlacklist(req: reqType.Request) {
+    try {
+      const isBlacklisted = await this.bookingsService.checkBlacklist(req.headers.authorization.split(' ')[1])
+      if (isBlacklisted) {
+        throw new FORBIDDEN_403("Invalid token")
+      }
+    } catch (error) {
+      throw error
+    }
+
+  }
+
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Body() createBookingDto: CreateBookingDto): Promise<CustomResDto> {
+  async create(@Request() req: reqType.Request, @Body() createBookingDto: CreateBookingDto): Promise<CustomResDto> {
+    await this.checkBlacklist(req);
     const response = this.customResDto;
     response.results = await this.bookingsService.create(createBookingDto);
     response.message = "Booking created successfully"
@@ -35,7 +49,8 @@ export class BookingsController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get()
-  async findAll(@Request() req, @Query() bookingQueryDto: BookingQueryDto): Promise<CustomListResDto> {
+  async findAll(@Request() req: reqType.Request, @Query() bookingQueryDto: BookingQueryDto): Promise<CustomListResDto> {
+    await this.checkBlacklist(req);
     const page = Number(bookingQueryDto?.page) ?? 1;
     const limit = Number(bookingQueryDto?.limit) ?? 10;
     
@@ -54,7 +69,8 @@ export class BookingsController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  async findOne(@Request() req, @Param('id') id: string): Promise<CustomResDto> {
+  async findOne(@Request() req: reqType.Request, @Param('id') id: string): Promise<CustomResDto> {
+    await this.checkBlacklist(req);
     const booking =  await this.bookingsService.findOne(id);
     const response = this.customResDto;
     response.results = booking;
@@ -65,7 +81,8 @@ export class BookingsController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  async update(@Request() req, @Param('id') id: string, @Body() updateBookingDto: UpdateBookingDto): Promise<CustomResDto> {
+  async update(@Request() req: reqType.Request, @Param('id') id: string, @Body() updateBookingDto: UpdateBookingDto): Promise<CustomResDto> {
+    await this.checkBlacklist(req);
     const booking =  await this.bookingsService.update(id, updateBookingDto);
     const response = this.customResDto;
     response.results = booking;
@@ -76,7 +93,8 @@ export class BookingsController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  async remove(@Request() req, @Param('id') id: string): Promise<CustomInfoResDto> {
+  async remove(@Request() req: reqType.Request, @Param('id') id: string): Promise<CustomInfoResDto> {
+    await this.checkBlacklist(req);
     await this.bookingsService.remove(id);
     const response = this.customInfoResDto;
     response.info = 'Booking Deactivation successful';

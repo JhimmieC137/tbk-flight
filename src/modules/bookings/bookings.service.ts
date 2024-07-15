@@ -5,12 +5,15 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BookingQueryResponseDto } from './dto/responses.dto';
 import { NOT_FOUND_404 } from 'src/helpers/exceptions/auth';
+import { TokenBlacklist } from '../flights/entities/blacklist.entity';
 
 @Injectable()
 export class BookingsService {
   constructor(
     @InjectRepository(Booking)
-    private bookingRepository: Repository<Booking>
+    private bookingRepository: Repository<Booking>,
+    @InjectRepository(TokenBlacklist)
+    private blacklistRepository: Repository<TokenBlacklist>,
   ){}
 
   async create(createBookingDto: CreateBookingDto) {
@@ -130,4 +133,23 @@ export class BookingsService {
       throw error
     }
   }
+
+
+  async checkBlacklist(token: string): Promise<Boolean> {
+    try{
+      const blackToken = await this.blacklistRepository.findOne({
+        where: {token}
+      });
+      
+      if (!blackToken) {
+        return false;
+      };
+
+      return true;
+    } catch (error) {
+      throw error;
+    }
+
+  };
+
 }
