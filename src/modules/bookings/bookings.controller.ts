@@ -40,7 +40,7 @@ export class BookingsController {
   async create(@Request() req: reqType.Request, @Body() createBookingDto: CreateBookingDto): Promise<CustomResDto> {
     await this.checkBlacklist(req);
     const response = this.customResDto;
-    response.results = await this.bookingsService.create(createBookingDto);
+    response.results = await this.bookingsService.create(req.user['id'], createBookingDto);
     response.message = "Booking created successfully"
 
     return response;
@@ -54,7 +54,7 @@ export class BookingsController {
     const page = Number(bookingQueryDto?.page) ?? 1;
     const limit = Number(bookingQueryDto?.limit) ?? 10;
     
-    const bookings =  await this.bookingsService.findAll(page, limit, bookingQueryDto.search);
+    const bookings =  await this.bookingsService.findAll(req.user['id'], page, limit, bookingQueryDto.search);
     
     const response = this.customListResDto;
     response.results = bookings.bookings;
@@ -71,7 +71,7 @@ export class BookingsController {
   @Get(':id')
   async findOne(@Request() req: reqType.Request, @Param('id') id: string): Promise<CustomResDto> {
     await this.checkBlacklist(req);
-    const booking =  await this.bookingsService.findOne(id);
+    const booking =  await this.bookingsService.findOne(req.user['id'], id);
     const response = this.customResDto;
     response.results = booking;
     response.message = 'Booking retrieved successfully'
@@ -83,7 +83,7 @@ export class BookingsController {
   @Patch(':id')
   async update(@Request() req: reqType.Request, @Param('id') id: string, @Body() updateBookingDto: UpdateBookingDto): Promise<CustomResDto> {
     await this.checkBlacklist(req);
-    const booking =  await this.bookingsService.update(id, updateBookingDto);
+    const booking =  await this.bookingsService.update(req.user['id'], id, updateBookingDto);
     const response = this.customResDto;
     response.results = booking;
     response.message = 'Booking updated successfully'
@@ -95,7 +95,7 @@ export class BookingsController {
   @Delete(':id')
   async remove(@Request() req: reqType.Request, @Param('id') id: string): Promise<CustomInfoResDto> {
     await this.checkBlacklist(req);
-    await this.bookingsService.remove(id);
+    await this.bookingsService.remove(req.user['id'], id);
     const response = this.customInfoResDto;
     response.info = 'Booking Deactivation successful';
     return response;
