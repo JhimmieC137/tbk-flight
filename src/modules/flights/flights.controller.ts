@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Request, Head } from '@nestjs/common';
 import { FlightsService } from './flights.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CustomInfoResDto, CustomListResDto, CustomResDto } from 'src/helpers/schemas.dto';
@@ -29,6 +29,12 @@ export class FlightsController {
     }
 
   }
+
+  @Head("health")
+  async getHealth(): Promise<Boolean>{
+    return true;
+  }
+
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
